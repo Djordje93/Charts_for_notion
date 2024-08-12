@@ -1,49 +1,104 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Chart</title>
+    <title>Weekly Distance and Running Sum Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Center the canvas element */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 10vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        canvas {
+            max-width: 800px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="myChart" width="400" height="200"></canvas>
-    <script>
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar', // Type of chart (e.g., line, bar, radar, etc.)
-            data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
+
+<canvas id="mixedChart"></canvas>
+
+<script>
+    // Data for the chart
+    const weekLabels = ['2023-W32', '2023-W33', '2023-W34', '2023-W35', '2023-W36', '2023-W37', '2023-W38', '2023-W39', '2023-W40', '2023-W41', '2023-W42', '2023-W43', '2023-W44', '2023-W45', '2023-W46', '2023-W47', '2023-W48', '2023-W49', '2023-W50', '2023-W51', '2023-W52', '2024-W01', '2024-W02', '2024-W03', '2024-W04', '2024-W05', '2024-W06', '2024-W07', '2024-W08', '2024-W09', '2024-W10', '2024-W11', '2024-W12', '2024-W14', '2024-W15', '2024-W16', '2024-W17', '2024-W18', '2024-W19', '2024-W20', '2024-W21', '2024-W22', '2024-W23', '2024-W24', '2024-W25', '2024-W26', '2024-W27', '2024-W28', '2024-W29', '2024-W30', '2024-W31', '2024-W32']; // Week labels (Year-Week)
+    const totalDistances = [0.11720999670028687, 5.771580136299134, 0.0, 4.9620400390625, 0.0, 0.0, 0.0, 2.538419921875, 5.639490234375, 0.0, 3.902340087890625, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6.1581201171875, 3.817619964599609, 7.7, 12.33797998046875, 13.285330078125, 15.022509765625, 13.884680175781249, 12.901910156249999, 16.11056005859375, 24.805390625, 23.328929687499997, 28.662419921875, 26.421669921875, 0.0, 5.369580078125, 5.203240234375, 0.0, 0.0, 0.0, 0.0, 9.63847021484375, 0.0, 0.0, 13.4557099609375, 8.584580078125, 0.0, 16.08145947265625, 4.56627978515625, 29.40064013671875, 14.43125, 24.503099609375, 17.65727978515625, 20.093890136718752]; // Total distances for each week
+    const averageRunningSum7 = [5.825185134885544, 4.812223446843857, 4.962040039060348, 4.962040039060348, -2.152500400143254e-12, -2.152500400143254e-12, 1.2692099609353478, 5.358165039060348, 4.511592187497847, 0.9755850219705033, 3.902340087888472, -2.152944489353104e-12, -2.152944489353104e-12, -2.152944489353104e-12, -2.152944489353104e-12, -2.152944489353104e-12, -2.152944489353104e-12, 6.158120117185347, 6.158120117185347, 8.809340098060998, 5.694946634926231, 17.382787988279098, 18.39561002604059, 17.545757568359374, 19.75509999999999, 15.121116841634104, 18.141238110351548, 32.42095058593749, 30.919896289062496, 35.44307363281249, 28.548298409598207, 22.85175016276041, 10.5728203125, 10.5728203125, 5.203240234374997, -3.552713678800501e-15, -3.552713678800501e-15, 2.9676533203124964, 9.638470214843746, 5.003112670898434, 6.009999999999997, 8.491903320312499, 15.753874999999999, 7.052674023437501, 12.887689615885416, 18.068421289062503, 20.59814584960938, 26.125666870117186, 20.133869768415174, 26.462311718749998, 21.146791894531248, 17.734080078125]; // Average running sum
+
+    // Configure the mixed chart
+    const ctx = document.getElementById('mixedChart').getContext('2d');
+    const mixedChart = new Chart(ctx, {
+        type: 'bar', // Primary type for the dataset
+        data: {
+            labels: weekLabels, // X-axis labels
+            datasets: [{
+                label: 'Total Distance (km)',
+                data: totalDistances,
+                backgroundColor: 'rgba(76, 76, 76, 0.2)', // Bar color
+                borderColor: 'rgba(76, 76, 76, 0.5)', // Bar border color
+                borderWidth: 1,
+                type: 'bar' // Ensure this dataset is a bar chart
+            }, {
+                label: 'Average Running Sum 7 (km)',
+                data: averageRunningSum7,
+                backgroundColor: 'rgba(86, 11, 173, 0.2)', // Line fill color
+                borderColor: 'rgba(86, 11, 173, 0.3)', // Line color
+                borderWidth: 2,
+                pointStyle: false,
+                tension: 0.2,
+                type: 'line', // Ensure this dataset is a line chart
+                fill: false // Do not fill under the line
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                    display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true, // Y-axis starts at zero
+                    min: 0,
+                    title: {
+                        display: true,
+                        text: 'Distance (km)'
                     }
                 }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+
+                title: {
+                display: true,
+                align: 'start',
+                font: {
+                        size: 18
+                    },
+                text: 'Running volume overview'
+            },
+                subtitle: {
+                display: true,
+                align: 'start',
+                text: 'This week volume 20km | Running Sum 21km'
+            },
+                tooltip: {
+                    enabled: true
+                }
             }
-        });
-    </script>
+        }
+    });
+</script>
+
 </body>
 </html>
