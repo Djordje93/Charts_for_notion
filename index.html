@@ -14,7 +14,7 @@
             align-items: center;
             min-height: 10vh;
             margin: 0;
-            background-color: #f4f4f9;
+            background-color: #191919;
         }
         canvas {
             max-width: 800px;
@@ -41,20 +41,20 @@
             datasets: [{
                 label: 'Total Distance (km)',
                 data: totalDistances,
-                backgroundColor: 'rgba(76, 76, 76, 0.2)', // Bar color
-                borderColor: 'rgba(76, 76, 76, 0.5)', // Bar border color
+                backgroundColor: 'rgba(76, 76, 76, 0.8)', // Bar color
+                borderColor: 'rgba(76, 76, 76, 1)', // Bar border color
                 borderWidth: 1,
                 type: 'bar' // Ensure this dataset is a bar chart
             }, {
                 label: 'Average Running Sum 7 (km)',
                 data: averageRunningSum7,
-                backgroundColor: 'rgba(86, 11, 173, 0.2)', // Line fill color
-                borderColor: 'rgba(86, 11, 173, 0.3)', // Line color
-                borderWidth: 2,
+                backgroundColor: 'rgba(252, 132, 151, 0.08)', // Line fill color
+                borderColor: 'rgba(252, 132, 151, 1)', // Line color
+                borderWidth: 3,
                 pointStyle: false,
                 tension: 0.2,
                 type: 'line', // Ensure this dataset is a line chart
-                fill: false // Do not fill under the line
+                fill: true // Do not fill under the line
             }]
         },
         options: {
@@ -76,11 +76,17 @@
             plugins: {
                 legend: {
                     display: true,
+                    labels: {
+                        font: {
+                            size: 8 // Set the font size for legend labels
+                        }
+                },
                     position: 'top'
                 },
 
                 title: {
                 display: true,
+                color: 'rgba(255,235,255,1)',
                 align: 'start',
                 font: {
                         size: 18
@@ -89,8 +95,9 @@
             },
                 subtitle: {
                 display: true,
+                color: 'rgba(255,235,255,0.9)',
                 align: 'start',
-                text: 'This week volume 20km | Running Sum 21km'
+                text: 'This week volume 20.09 km | Running Sum 17.73 km'
             },
                 tooltip: {
                     enabled: true
