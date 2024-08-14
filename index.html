@@ -1,35 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Weekly Distance and Running Sum Chart</title>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <style>
-            /* Ensure the body takes up the full window and centers content */
-            body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh; /* Use full viewport height */
-                margin: 0;
-                background-color: #191919;
-            }
-        
-            /* Stretch the canvas to fill the available space */
-            canvas {
-                width: 100%;
-                height: 100%; /* Stretch to full height */
-            }
-        
-            /* Ensure the chart container fills the window */
-            .chart-container {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Distance and Running Sum Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Ensure the body takes up the full window and centers content */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Use full viewport height */
+            margin: 0;
+            background-color: #191919;
+        }
+    
+        /* Stretch the canvas to fill the available space */
+        canvas {
+            width: 100%;
+            height: 100%; /* Stretch to full height */
+        }
+    
+        /* Ensure the chart container fills the window */
+        .chart-container {
+            width: 100%;
+            height: 100%;
+        }
+
+            /* Style for the filter buttons */
+        .filter-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px; /* Move the buttons to the right */
+            z-index: 10;
+            display: flex;
+            gap: 10px; /* Add some space between the buttons */
+        }
+
+        .filter-buttons button {
+            padding: 5px 10px; /* Make the buttons smaller */
+            font-size: 12px; /* Smaller font size */
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease; /* Smooth transition for background color */
+        }
+
+        .filter-buttons button:hover,
+        .filter-buttons button.active { /* Active button or hover state */
+            background-color: #FC8497; /* Change color when active or hovered */
+        }
+
+        /* Optional: To ensure the active state is visually distinct */
+        .filter-buttons button.active {
+            color: #fff; /* Ensure text color stays white */
+        }
+    </style>
+</head>
 <body>
+
+<div class="filter-buttons">
+    <button onclick="loadChartData('12months')">Last 12 Months</button>
+    <button onclick="loadChartData('6months')">Last 6 Months</button>
+</div>
 
 <canvas id="myChart"></canvas>
 
@@ -37,139 +73,171 @@
     // Replace with your published Google Sheets URL
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZ0zZrKLdP4eI2PbREdL8i4tKHBYmlVMD8SVnWxBMQ2SExFOFetYdOLndFXFHceHaLLUDX1qQLC1cf/pub?gid=0&single=true&output=csv';
 
-    fetch(sheetUrl)
-    .then(response => response.text())
-    .then(data => {
-        const rows = data.split('\n').slice(1); // Skip the header row
-        const weeklyData = {};
+    function loadChartData(filterOption) {
+        fetch(sheetUrl)
+        .then(response => response.text())
+        .then(data => {
+            const rows = data.split('\n').slice(1); // Skip the header row
+            const weeklyData = {};
 
-        rows.forEach(row => {
-            const columns = row.split(',');
-            const date = columns[2]; // Date is in column C (index 2)
-            const distance = parseFloat(columns[5]); // # Distance is in column F (index 5)
-            const running_sum = parseFloat(columns[12]);
-
-            // Convert date to yyyy-ww format
-            const [day, month, year] = date.split('/');
-            const jsDate = new Date(`${year}-${month}-${day}`);
-            const week = getWeekNumber(jsDate);
-            const yearWeek = `${jsDate.getFullYear()}-${String(week).padStart(2, '0')}`;
-
-            // Initialize weekly data if not already present
-            if (!weeklyData[yearWeek]) {
-                weeklyData[yearWeek] = {
-                    totalDistance: 0,
-                    runningSumTotal: 0,
-                    count: 0,
-                };
+            // Get the current date and calculate the date for the selected filter
+            const currentDate = new Date();
+            const filterDate = new Date();
+            
+            if (filterOption === '12months') {
+                filterDate.setFullYear(currentDate.getFullYear() - 1);
+                filterDate.setMonth(currentDate.getMonth() + 1);
+            } else if (filterOption === '6months') {
+                filterDate.setMonth(currentDate.getMonth() - 5);
             }
 
-            // Sum distances and running sums for each week
-            weeklyData[yearWeek].totalDistance += distance;
-            weeklyData[yearWeek].runningSumTotal += running_sum;
-            weeklyData[yearWeek].count += 1;
-        });
+            rows.forEach(row => {
+                const columns = row.split(',');
+                const date = columns[2]; // Date is in column C (index 2)
+                const distance = parseFloat(columns[5]); // # Distance is in column F (index 5)
+                const running_sum = parseFloat(columns[12]);
 
-        // Sort data by year-week
-        const sortedLabels = Object.keys(weeklyData).sort();
-        const sortedValues = sortedLabels.map(label => weeklyData[label].totalDistance);
-        const averageRunningSum = sortedLabels.map(label => (weeklyData[label].runningSumTotal / weeklyData[label].count).toFixed(2));
+                // Convert date to yyyy-ww format
+                const [day, month, year] = date.split('/');
+                const jsDate = new Date(`${year}-${month}-${day}`);
 
-        // Create the chart
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const mixedChart = new Chart(ctx, {
-            type: 'bar', // Primary type for the dataset
-            data: {
-                labels: sortedLabels,
-                datasets: [{
-                    label: '# Distance',
-                    data: sortedValues,
-                    backgroundColor: 'rgba(76, 76, 76, 0.8)', // Bar color
-                    borderColor: 'rgba(76, 76, 76, 1)', // Bar border color
-                    borderWidth: 1,
-                    borderRadius: 5,
-                }, {
-                    label: 'Average Running Sum (km)',
-                    data: averageRunningSum,
-                    backgroundColor: 'rgba(252, 132, 151, 0.08)', // Line fill color
-                    borderColor: 'rgba(252, 132, 151, 1)', // Line color
-                    borderWidth: 3,
-                    pointStyle: false,
-                    tension: 0.2,
-                    type: 'line', // Ensure this dataset is a line chart
-                    fill: true // Do not fill under the line
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            autoSkip: true, // Automatically skip labels if too many
-                            callback: function(value, index, values) {
-                                if (this.chart.width < 600) { // Set the width threshold for hiding labels
-                                    return null; // Hide the label if the chart is too narrow
+                // Filter out data older than the selected filter period
+                if (jsDate < filterDate) {
+                    return; // Skip this row if it's older than the filter period
+                }
+
+                const week = getWeekNumber(jsDate);
+                const yearWeek = `${jsDate.getFullYear()}-${String(week).padStart(2, '0')}`;
+
+                // Initialize weekly data if not already present
+                if (!weeklyData[yearWeek]) {
+                    weeklyData[yearWeek] = {
+                        totalDistance: 0,
+                        runningSumTotal: 0,
+                        count: 0,
+                    };
+                }
+
+                // Sum distances and running sums for each week
+                weeklyData[yearWeek].totalDistance += distance;
+                weeklyData[yearWeek].runningSumTotal += running_sum;
+                weeklyData[yearWeek].count += 1;
+            });
+
+            // Sort data by year-week
+            const sortedLabels = Object.keys(weeklyData).sort();
+            const sortedValues = sortedLabels.map(label => weeklyData[label].totalDistance);
+            const averageRunningSum = sortedLabels.map(label => (weeklyData[label].runningSumTotal / weeklyData[label].count).toFixed(2));
+
+            // Get the latest week data
+            const latestWeek = sortedLabels[sortedLabels.length - 1];
+            const latestWeekDistance = weeklyData[latestWeek].totalDistance.toFixed(2);
+            const latestWeekRunningSum = (weeklyData[latestWeek].runningSumTotal / weeklyData[latestWeek].count).toFixed(2);
+
+
+            // Create or update the chart
+            const ctx = document.getElementById('myChart').getContext('2d');
+            if (window.mixedChart) {
+                window.mixedChart.destroy();
+            }
+            window.mixedChart = new Chart(ctx, {
+                type: 'bar', // Primary type for the dataset
+                data: {
+                    labels: sortedLabels,
+                    datasets: [{
+                        label: '# Distance',
+                        data: sortedValues,
+                        backgroundColor: 'rgba(76, 76, 76, 0.8)', // Bar color
+                        borderColor: 'rgba(76, 76, 76, 1)', // Bar border color
+                        borderWidth: 1,
+                        borderRadius: 5,
+                    }, {
+                        label: 'Average Running Sum (km)',
+                        data: averageRunningSum,
+                        backgroundColor: 'rgba(252, 132, 151, 0.08)', // Line fill color
+                        borderColor: 'rgba(252, 132, 151, 1)', // Line color
+                        borderWidth: 3,
+                        pointStyle: false,
+                        tension: 0.2,
+                        type: 'line', // Ensure this dataset is a line chart
+                        fill: true // Do not fill under the line
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                autoSkip: true, // Automatically skip labels if too many
+                                callback: function(value, index, values) {
+                                    if (this.chart.width < 600) { // Set the width threshold for hiding labels
+                                        return null; // Hide the label if the chart is too narrow
+                                    }
+                                    return this.getLabelForValue(value).split('-')[1]; // Show week number only
                                 }
-                                    return this.getLabelForValue(value).split('-')[1];
+                            }
+                         },
+                        y: {
+                            beginAtZero: true, // Y-axis starts at zero
+                            min: 0,
+                            title: {
+                                display: true,
+                                text: 'Distance (km)'
                             }
                         }
-                     },
-                y: {
-                    beginAtZero: true, // Y-axis starts at zero
-                    min: 0,
-                    title: {
-                        display: true,
-                        text: 'Distance (km)'
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: {
+                                    size: 8 // Set the font size for legend labels
+                                }
+                            },
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            color: 'rgba(255,235,255,1)',
+                            align: 'start',
+                            font: {
+                                size: 18
+                            },
+                            text: 'Running volume overview'
+                        },
+                        subtitle: {
+                            display: true,
+                            color: 'rgba(255,235,255,0.9)',
+                            align: 'start',
+                            text: `This week volume ${latestWeekDistance} km | Running Sum ${latestWeekRunningSum} km`
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
                     }
                 }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: {
-                        font: {
-                            size: 8 // Set the font size for legend labels
-                        }
-                },
-                    position: 'top'
-                },
+            });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
 
-                title: {
-                display: true,
-                color: 'rgba(255,235,255,1)',
-                align: 'start',
-                font: {
-                        size: 18
-                    },
-                text: 'Running volume overview'
-            },
-                subtitle: {
-                display: true,
-                color: 'rgba(255,235,255,0.9)',
-                align: 'start',
-                text: 'This week volume 20.09 km | Running Sum 17.73 km'
-            },
-                tooltip: {
-                    enabled: true
-                }
-            }
-            }
-        });
-    })
-    .catch(error => console.error('Error fetching data:', error));
+    // Helper function to get the ISO week number
+    function getWeekNumber(d) {
+        const date = new Date(d.getTime());
+        date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+        const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+        return weekNo;
+    }
 
-// Helper function to get the ISO week number
-function getWeekNumber(d) {
-    const date = new Date(d.getTime());
-    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-    return weekNo;
-}
+    // Load the chart with the default filter (last 12 months) when the page loads
+    window.onload = function() {
+        loadChartData('12months');
+    };
 </script>
 
 </body>
