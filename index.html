@@ -1,69 +1,123 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Distance and Running Sum Chart</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* Center the canvas element */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 10vh;
-            margin: 0;
-            background-color: #191919;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Weekly Distance and Running Sum Chart</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            /* Ensure the body takes up the full window and centers content */
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh; /* Use full viewport height */
+                margin: 0;
+                background-color: #191919;
+            }
+        
+            /* Stretch the canvas to fill the available space */
+            canvas {
+                width: 100%;
+                height: 100%; /* Stretch to full height */
+            }
+        
+            /* Ensure the chart container fills the window */
+            .chart-container {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
 <body>
 
-<canvas id="mixedChart"></canvas>
+<canvas id="myChart"></canvas>
 
 <script>
-    // Data for the chart
-    const weekLabels = ['2023-W32', '2023-W33', '2023-W34', '2023-W35', '2023-W36', '2023-W37', '2023-W38', '2023-W39', '2023-W40', '2023-W41', '2023-W42', '2023-W43', '2023-W44', '2023-W45', '2023-W46', '2023-W47', '2023-W48', '2023-W49', '2023-W50', '2023-W51', '2023-W52', '2024-W01', '2024-W02', '2024-W03', '2024-W04', '2024-W05', '2024-W06', '2024-W07', '2024-W08', '2024-W09', '2024-W10', '2024-W11', '2024-W12', '2024-W14', '2024-W15', '2024-W16', '2024-W17', '2024-W18', '2024-W19', '2024-W20', '2024-W21', '2024-W22', '2024-W23', '2024-W24', '2024-W25', '2024-W26', '2024-W27', '2024-W28', '2024-W29', '2024-W30', '2024-W31', '2024-W32']; // Week labels (Year-Week)
-    const totalDistances = [0.11720999670028687, 5.771580136299134, 0.0, 4.9620400390625, 0.0, 0.0, 0.0, 2.538419921875, 5.639490234375, 0.0, 3.902340087890625, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6.1581201171875, 3.817619964599609, 7.7, 12.33797998046875, 13.285330078125, 15.022509765625, 13.884680175781249, 12.901910156249999, 16.11056005859375, 24.805390625, 23.328929687499997, 28.662419921875, 26.421669921875, 0.0, 5.369580078125, 5.203240234375, 0.0, 0.0, 0.0, 0.0, 9.63847021484375, 0.0, 0.0, 13.4557099609375, 8.584580078125, 0.0, 16.08145947265625, 4.56627978515625, 29.40064013671875, 14.43125, 24.503099609375, 17.65727978515625, 20.093890136718752]; // Total distances for each week
-    const averageRunningSum7 = [5.825185134885544, 4.812223446843857, 4.962040039060348, 4.962040039060348, -2.152500400143254e-12, -2.152500400143254e-12, 1.2692099609353478, 5.358165039060348, 4.511592187497847, 0.9755850219705033, 3.902340087888472, -2.152944489353104e-12, -2.152944489353104e-12, -2.152944489353104e-12, -2.152944489353104e-12, -2.152944489353104e-12, -2.152944489353104e-12, 6.158120117185347, 6.158120117185347, 8.809340098060998, 5.694946634926231, 17.382787988279098, 18.39561002604059, 17.545757568359374, 19.75509999999999, 15.121116841634104, 18.141238110351548, 32.42095058593749, 30.919896289062496, 35.44307363281249, 28.548298409598207, 22.85175016276041, 10.5728203125, 10.5728203125, 5.203240234374997, -3.552713678800501e-15, -3.552713678800501e-15, 2.9676533203124964, 9.638470214843746, 5.003112670898434, 6.009999999999997, 8.491903320312499, 15.753874999999999, 7.052674023437501, 12.887689615885416, 18.068421289062503, 20.59814584960938, 26.125666870117186, 20.133869768415174, 26.462311718749998, 21.146791894531248, 17.734080078125]; // Average running sum
+    // Replace with your published Google Sheets URL
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZ0zZrKLdP4eI2PbREdL8i4tKHBYmlVMD8SVnWxBMQ2SExFOFetYdOLndFXFHceHaLLUDX1qQLC1cf/pub?gid=0&single=true&output=csv';
 
-    // Configure the mixed chart
-    const ctx = document.getElementById('mixedChart').getContext('2d');
-    const mixedChart = new Chart(ctx, {
-        type: 'bar', // Primary type for the dataset
-        data: {
-            labels: weekLabels, // X-axis labels
-            datasets: [{
-                label: 'Total Distance (km)',
-                data: totalDistances,
-                backgroundColor: 'rgba(76, 76, 76, 0.8)', // Bar color
-                borderColor: 'rgba(76, 76, 76, 1)', // Bar border color
-                borderWidth: 1,
-                type: 'bar' // Ensure this dataset is a bar chart
-            }, {
-                label: 'Average Running Sum 7 (km)',
-                data: averageRunningSum7,
-                backgroundColor: 'rgba(252, 132, 151, 0.08)', // Line fill color
-                borderColor: 'rgba(252, 132, 151, 1)', // Line color
-                borderWidth: 3,
-                pointStyle: false,
-                tension: 0.2,
-                type: 'line', // Ensure this dataset is a line chart
-                fill: true // Do not fill under the line
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    grid: {
-                    display: false
-                    }
-                },
+    fetch(sheetUrl)
+    .then(response => response.text())
+    .then(data => {
+        const rows = data.split('\n').slice(1); // Skip the header row
+        const weeklyData = {};
+
+        rows.forEach(row => {
+            const columns = row.split(',');
+            const date = columns[2]; // Date is in column C (index 2)
+            const distance = parseFloat(columns[5]); // # Distance is in column F (index 5)
+            const running_sum = parseFloat(columns[12]);
+
+            // Convert date to yyyy-ww format
+            const [day, month, year] = date.split('/');
+            const jsDate = new Date(`${year}-${month}-${day}`);
+            const week = getWeekNumber(jsDate);
+            const yearWeek = `${jsDate.getFullYear()}-${String(week).padStart(2, '0')}`;
+
+            // Initialize weekly data if not already present
+            if (!weeklyData[yearWeek]) {
+                weeklyData[yearWeek] = {
+                    totalDistance: 0,
+                    runningSumTotal: 0,
+                    count: 0,
+                };
+            }
+
+            // Sum distances and running sums for each week
+            weeklyData[yearWeek].totalDistance += distance;
+            weeklyData[yearWeek].runningSumTotal += running_sum;
+            weeklyData[yearWeek].count += 1;
+        });
+
+        // Sort data by year-week
+        const sortedLabels = Object.keys(weeklyData).sort();
+        const sortedValues = sortedLabels.map(label => weeklyData[label].totalDistance);
+        const averageRunningSum = sortedLabels.map(label => (weeklyData[label].runningSumTotal / weeklyData[label].count).toFixed(2));
+
+        // Create the chart
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const mixedChart = new Chart(ctx, {
+            type: 'bar', // Primary type for the dataset
+            data: {
+                labels: sortedLabels,
+                datasets: [{
+                    label: '# Distance',
+                    data: sortedValues,
+                    backgroundColor: 'rgba(76, 76, 76, 0.8)', // Bar color
+                    borderColor: 'rgba(76, 76, 76, 1)', // Bar border color
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }, {
+                    label: 'Average Running Sum (km)',
+                    data: averageRunningSum,
+                    backgroundColor: 'rgba(252, 132, 151, 0.08)', // Line fill color
+                    borderColor: 'rgba(252, 132, 151, 1)', // Line color
+                    borderWidth: 3,
+                    pointStyle: false,
+                    tension: 0.2,
+                    type: 'line', // Ensure this dataset is a line chart
+                    fill: true // Do not fill under the line
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            autoSkip: true, // Automatically skip labels if too many
+                            callback: function(value, index, values) {
+                                if (this.chart.width < 600) { // Set the width threshold for hiding labels
+                                    return null; // Hide the label if the chart is too narrow
+                                }
+                                    return this.getLabelForValue(value).split('-')[1];
+                            }
+                        }
+                     },
                 y: {
                     beginAtZero: true, // Y-axis starts at zero
                     min: 0,
@@ -103,8 +157,19 @@
                     enabled: true
                 }
             }
-        }
-    });
+            }
+        });
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
+// Helper function to get the ISO week number
+function getWeekNumber(d) {
+    const date = new Date(d.getTime());
+    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    return weekNo;
+}
 </script>
 
 </body>
