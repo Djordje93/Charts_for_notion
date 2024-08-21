@@ -101,7 +101,7 @@ function loadChartData(filterOption = '6months') {
                 scales: {
                     x: {
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)', // Light color for grid lines
+                            color: 'rgba(255, 255, 255, 0.05)', // Light color for grid lines
                             lineWidth: 1, // Thicker grid lines
                             borderDash: [4, 2], // Dashed grid lines
                         },
@@ -109,7 +109,7 @@ function loadChartData(filterOption = '6months') {
                         ticks: {
                             color: '#FFFFFF', // Highlight the x-axis labels
                             font: {
-                                size: 14
+                                size: 10
                             },
                             callback: function(value) {
                                 return this.getLabelForValue(value).split('-')[1]; // Always show week number only
