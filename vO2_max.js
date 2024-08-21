@@ -107,9 +107,9 @@ function loadChartData(filterOption = '6months') {
                         },
                         offset: true,
                         ticks: {
-                            color: '#FFFFFF', // Highlight the x-axis labels
+                            color: 'rgba(255, 255, 255, 0.3)', // Highlight the x-axis labels
                             font: {
-                                size: 10
+                                size: 8
                             },
                             callback: function(value) {
                                 return this.getLabelForValue(value).split('-')[1]; // Always show week number only
