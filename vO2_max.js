@@ -93,9 +93,9 @@ function loadChartData(filterOption = '6months') {
                 maintainAspectRatio: false,
                 elements: {
                     point: {
-                        radius: 6,
-                        hitRadius: 6,
-                        hoverRadius: 6
+                        radius: 4,
+                        hitRadius: 4,
+                        hoverRadius: 4
                     }
                 },
                 scales: {
@@ -141,7 +141,7 @@ function loadChartData(filterOption = '6months') {
                         color: 'rgba(255,235,255,1)',
                         align: 'center',
                         font: {
-                            size: 18
+                            size: 12
                         },
                         text: `vO2 Max`
                     },
@@ -150,7 +150,7 @@ function loadChartData(filterOption = '6months') {
                         color: 'rgba(255,235,255,1)',
                         align: 'center',
                         font: {
-                            size: 20
+                            size: 16
                         },
                         text: `${latestWeekVo2Max}`
                     },
