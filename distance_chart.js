@@ -79,6 +79,7 @@
                         borderColor: 'rgba(76, 76, 76, 1)', // Bar border color
                         borderWidth: 1,
                         borderRadius: 5,
+                        hoverBackgroundColor: 'rgba(76, 76, 76, 0.3)'
                     }, {
                         label: 'Average Running Sum (km)',
                         data: averageRunningSum,
