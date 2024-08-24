@@ -154,6 +154,9 @@
                         datalabels: {
                             anchor: 'end',
                             align: 'end',
+                            font: {
+                                size: 8
+                            },
                             formatter: (value) => {
                                 if (value === 0) { //If zero do not show any data label
                                     return null;
