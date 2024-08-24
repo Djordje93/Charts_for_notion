@@ -83,13 +83,17 @@
                     }, {
                         label: 'Average Running Sum (km)',
                         data: averageRunningSum,
-                        backgroundColor: 'rgba(252, 132, 151, 0.08)', // Line fill color
-                        borderColor: 'rgba(252, 132, 151, 1)', // Line color
-                        borderWidth: 3,
-                        pointStyle: false,
-                        tension: 0.2,
                         type: 'line', // Ensure this dataset is a line chart
-                        fill: true // Do not fill under the line
+                        backgroundColor: 'rgba(252, 132, 151, 0.08)', // Line fill color
+                        borderColor: 'rgba(252, 132, 151, 0.8)', // Line color
+                        borderWidth: 2,
+                        borderDash: [2, 5],
+                        pointStyle: false,
+                        tension: 0.15,
+                        fill: true, // Do not fill under the line
+                        datalabels: {
+                            display: false
+                        }
                     }]
                 },
                 options: {
@@ -146,9 +150,20 @@
                         },
                         tooltip: {
                             enabled: true
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'end',
+                            formatter: (value) => {
+                                if (value === 0) { //If zero do not show any data label
+                                    return null;
+                                }
+                                return `${Math.round(value)} km`
+                            }
                         }
                     }
-                }
+                },
+                plugins: [ChartDataLabels]
             });
         })
         .catch(error => console.error('Error fetching data:', error));

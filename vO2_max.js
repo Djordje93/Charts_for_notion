@@ -76,15 +76,15 @@ function loadChartData(filterOption = '6months') {
                     label: 'Max VO2 Max',
                     data: maxVo2Values,
                     backgroundColor: 'rgba(252, 132, 151, 0.05)',
-                    borderColor: 'rgba(252, 132, 151, 0.4)',
+                    borderColor: 'rgba(252, 132, 151, 0.8)',
                     borderWidth: 2,
-                    borderDash: [5, 5],
+                    borderDash: [2, 5],
                     pointBorderColor: '#FFFFFF',
                     pointBackgroundColor: 'transparent',
                     pointHoverBorderWidth: 10,
                     pointHoverBorderColor: 'rgba(255, 255, 255, 0.2)',
                     fill: true, // No fill under the line
-                    tension: 0.3,
+                    tension: 0.15,
                     spanGaps: true,
                 }]
             },
